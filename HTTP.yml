@@ -1,0 +1,54 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: main-route
+spec:
+  parentRefs:
+  - name: main-gateway
+
+  rules:
+
+  # 🔹 FITNESS
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /fitness
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    backendRefs:
+    - name: fitness-tracker-service
+      port: 80
+
+  # 🔹 RETAIL
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /retail
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    backendRefs:
+    - name: capsule-service
+      port: 80
+
+  # 🔹 HOSPITAL
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /hospital
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    backendRefs:
+    - name: hospital-service
+      port: 80
