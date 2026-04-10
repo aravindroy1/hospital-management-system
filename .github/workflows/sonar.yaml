@@ -44,8 +44,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "SonarQube Analysis Failed"
-          body: "⚠️ CRITICAL FAILURE: TEAM MURALI - THE BUILD IS BROKEN! ⚠️"
+          subject: "⚠️ CRITICAL FAILURE: TEAM MURALI - THE BUILD IS BROKEN! ⚠️"
           from: Github Actions
           body: |
            💀 ATTENTION TEAM MURALI! 💀
