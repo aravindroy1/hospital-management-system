@@ -1,1 +1,65 @@
-fs
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      -main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up node 14
+        uses: actions/actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+      
+      - name: Set up Build
+        run: |
+          npm ci
+          npm run build 
+      - name: SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        with:
+         args: >
+            -Dsonar.projectKey=aravindroy1_hospital-management-system&branch=master
+            -Dsonar.organization=aravindroy1
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} 
+            -Dsonar.qualitygate.wait=true
+
+      - name: Send Email On Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "SonarQube Analysis Failed"
+          body: "⚠️ CRITICAL FAILURE: TEAM MURALI - THE BUILD IS BROKEN! ⚠️"
+          from: Github Actions
+          body: |
+           💀 ATTENTION TEAM MURALI! 💀
+
+            The pipeline has CRASHED on branch: ${{ github.head_ref }}.
+            
+            This is a CRITICAL failure. Quality gates or builds have failed and 
+            this requires IMMEDIATE intervention before the world ends.
+
+            --------------------------------------------------
+            👤 Triggered by: ${{ github.actor }}
+            📦 Repository: ${{ github.repository }}
+            🔴 Commit Hash: ${{ github.sha }}
+            --------------------------------------------------
+
+            🛑 STOP WHAT YOU ARE DOING AND FIX IT HERE:
+            https://github.com{{ github.repository }}/actions
+
+            Good luck, Team Murali. You're going to need it.
+
