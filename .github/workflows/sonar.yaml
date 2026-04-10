@@ -3,7 +3,10 @@ name: SonarQube Analysis
 on:
   push:
     branches:
-      -main
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -59,7 +62,7 @@ jobs:
             --------------------------------------------------
 
             🛑 STOP WHAT YOU ARE DOING AND FIX IT HERE:
-            https://github.com{{ github.repository }}/actions
+            https://github.com/${{ github.repository }}/actions
 
             Good luck, Team Murali. You're going to need it.
 
