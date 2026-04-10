@@ -2,11 +2,9 @@ name: SonarQube Analysis
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
   build:
@@ -14,26 +12,31 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up node 14
-        uses: actions/actions/setup-node@v4
+        uses: actions/checkout@v4 # Fixed version
         with:
-          node-version: '24'
+          fetch-depth: 0 # Important for SonarCloud
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4 # Fixed path & version
+        with:
+          node-version: '20' # Changed to a stable version (20 or 22)
           cache: 'npm'
       
-      - name: Set up Build
+      - name: Install & Build
         run: |
           npm ci
-          npm run build 
-      - name: SonarQube Scan
+          npm run build
+
+      - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-         args: >
-            -Dsonar.projectKey=aravindroy1_hospital-management-system&branch=master
+          args: >
+            -Dsonar.projectKey=aravindroy1_hospital-management-system
             -Dsonar.organization=aravindroy1
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} 
             -Dsonar.qualitygate.wait=true
 
       - name: Send Email On Failure
@@ -41,15 +44,17 @@ jobs:
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
-          server_port: 587
+          server_port: 465 # Reverted to 465 for Gmail SSL
+          secure: true
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "⚠️ CRITICAL FAILURE: TEAM MURALI - THE BUILD IS BROKEN! ⚠️"
-          from: Github Actions
+          to: aknagasai0421@gmail.com # MAKE SURE TO ADD THIS LINE
+          from: GitHub Actions
           body: |
-           💀 ATTENTION TEAM MURALI! 💀
+            💀 ATTENTION TEAM MURALI! 💀
 
-            The pipeline has CRASHED on branch: ${{ github.head_ref }}.
+            The pipeline has CRASHED on branch: ${{ github.head_ref || github.ref_name }}.
             
             This is a CRITICAL failure. Quality gates or builds have failed and 
             this requires IMMEDIATE intervention before the world ends.
@@ -64,4 +69,3 @@ jobs:
             https://github.com/${{ github.repository }}/actions
 
             Good luck, Team Murali. You're going to need it.
-
